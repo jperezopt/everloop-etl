@@ -1,20 +1,8 @@
-from pathlib import Path
 import pandas as pd
+from pathlib import Path
 
-EXPECTED_DIR = "adalo_csv_database_collections"
-EXPECTED_FILES = {
-    "Containers_Out.csv",
-    "Cup_Stock_Updates.csv",
-    "Lost_and_Broken_Cups.csv",
-    "Region.csv",
-    "Reports.csv",
-    "Site_Inventory_Tracking.csv",
-    "Sites.csv",
-    "User_History.csv",
-    "User_Payment_Flow.csv",
-    "User_Payment_History.csv",
-    "Users.csv",
-}
+from schema_config import EXPECTED_DIR
+from schema_config import EXPECTED_FILES
 
 
 def extract(
