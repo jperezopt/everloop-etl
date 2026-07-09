@@ -1,6 +1,7 @@
 import extract as ex
 import validate as val
 import transform as trans
+import load
 
 
 def main():
