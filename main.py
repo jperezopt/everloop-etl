@@ -1,13 +1,14 @@
-import extract as ex
-import validate as val
-import transform as trans
-import load
+from pathlib import Path
+
+from etl import extract, validate, transform, load
 
 
 def main():
-    databases = ex.extract()
-    val.validate_schemas(databases)
-    trans.transform(databases)
+    app_dir = Path(__file__).resolve().parent
+    databases = extract(app_dir)
+    validate(databases)
+    databases = transform(databases)
+
 
 
 if __name__ == "__main__":
