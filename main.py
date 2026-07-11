@@ -8,7 +8,7 @@ def main():
     databases = extract(app_dir)
     validate(databases)
     databases = transform(databases)
-
+    load(databases)
 
 
 if __name__ == "__main__":
