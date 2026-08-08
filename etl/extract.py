@@ -1,8 +1,8 @@
 import pandas as pd
 from pathlib import Path
 
-from .schema_config import EXPECTED_DIR
-from .schema_config import SCHEMA_WHITELIST
+from ..misc.schema_config import EXPECTED_DIR
+from ..misc.schema_config import SCHEMA_WHITELIST
 
 
 def extract(

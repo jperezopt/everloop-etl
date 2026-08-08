@@ -1,6 +1,6 @@
 import pandas as pd
 
-from .schema_config import SCHEMA_WHITELIST
+from ..misc.schema_config import SCHEMA_WHITELIST
 
 
 # Ensure the whitelisted columns/properties are present in the databases
