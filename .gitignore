@@ -2,5 +2,4 @@ csv_database_collections/
 __pycache__/
 .venv/
 misc/
-schema_config.py
 .env

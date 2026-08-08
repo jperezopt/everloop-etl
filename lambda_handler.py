@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from etl import extract, validate, transform, load
+from pipeline import extract, validate, transform, load
 
 
 def main():

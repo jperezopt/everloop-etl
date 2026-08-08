@@ -4,7 +4,7 @@ import pandas as pd
 from dotenv import load_dotenv
 from supabase import create_client
 from supabase import Client
-from ..misc.schema_config import SCHEMA_WHITELIST, TABLE_TYPES
+from .schema_config import SCHEMA_WHITELIST, TABLE_TYPES
 
 
 def load(databases: dict[str, pd.DataFrame]):

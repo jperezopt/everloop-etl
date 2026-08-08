@@ -1,7 +1,7 @@
 import pandas as pd
 import numpy as np
 
-from ..misc.schema_config import SCHEMA_WHITELIST
+from .schema_config import SCHEMA_WHITELIST
 
 
 def transform(databases: dict[str, pd.DataFrame]) -> dict[str, pd.DataFrame]:
