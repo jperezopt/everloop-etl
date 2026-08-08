@@ -1,7 +1,6 @@
+csv_database_collections/
 __pycache__/
-.venv
-csv_database_collections
+.venv/
+misc/
 schema_config.py
 .env
-arch.excalidraw.svg
-
