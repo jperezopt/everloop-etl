@@ -1,14 +1,11 @@
-from pathlib import Path
+from pipeline import extract, extract_api, validate, transform, load
 
-from pipeline import extract, validate, transform, load
+import json
 
 
 def main():
-    app_dir = Path(__file__).resolve().parent
-    databases = extract(app_dir)
-    validate(databases)
-    databases = transform(databases)
-    load(databases)
+    for name, page in extract_api.extract_all():
+        print(name, json.dumps([user["Username"] for user in page], indent=1))
 
 
 if __name__ == "__main__":

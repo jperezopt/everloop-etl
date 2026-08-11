@@ -1,4 +1,5 @@
 import os
+
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -12,5 +13,6 @@ COLLECTIONS_URL = f"https://api.adalo.com/v0/apps/{APP_ID}/collections/"
 
 COLLECTION_IDS = {
     "users": "t_a229afcff3994430ae617cc80e03bc63",
-    "containers_out":"t_ad7134d6a8084bb79841d7380d84c7e6"
+    "containers_out": "t_ad7134d6a8084bb79841d7380d84c7e6",
+    # "user_history": "t_3fa458a0fdd54cb5b8d8dda20209ee3b"
 }

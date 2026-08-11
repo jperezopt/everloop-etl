@@ -1,5 +1,6 @@
 import requests
-from config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
+
+from .config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
 
 
 def extract_all():
@@ -8,7 +9,7 @@ def extract_all():
         for name, cid in COLLECTION_IDS.items():
             url = COLLECTIONS_URL + cid
             try:
-                for page in paginate(session, url):
+                for page in paginate(session, url, 2):
                     yield name, page
             except requests.RequestException as e:
                 raise RuntimeError(
@@ -27,8 +28,9 @@ def paginate(session: requests.Session, url: str, limit=1000):
             timeout=30,
         )
         resp.raise_for_status()
-        records = resp.json()["records"]
+        body = resp.json()
+        records = body["records"]
         yield records
-        if len(records) < limit:
+        if "offset" not in body or len(records) < limit:
             return
-        offset += limit
+        offset = body["offset"]
