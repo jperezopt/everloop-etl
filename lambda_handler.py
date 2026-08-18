@@ -1,11 +1,11 @@
-from pipeline import extract, extract_api, validate, transform, load
+from pipeline import extract, load
 
 import json
 
-
 def main():
-    for name, page in extract_api.extract_all():
-        print(f"received {len(page)} records from {name}")
+    for name, records in extract.extract_all():
+        print(f"Received {len(records)} records from {name}")
+        load(records)
 
 if __name__ == "__main__":
     main()

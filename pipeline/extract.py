@@ -1,50 +1,40 @@
-import pandas as pd
-from pathlib import Path
+import requests
 
-from .schema_config import EXPECTED_DIR
-from .schema_config import SCHEMA_WHITELIST
+from collections.abc import Iterator
 
-
-def extract(
-    app_dir: Path,
-    expected_dir: str = EXPECTED_DIR,
-    schema_whitelist: dict[str, set[str]] = SCHEMA_WHITELIST,
-) -> dict[str, pd.DataFrame]:
-    actual_dir = app_dir / expected_dir
-    actual_files = verify_csv_files(actual_dir, schema_whitelist)
-    return extract_csv_files(actual_files)
+from .config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
 
 
-def verify_csv_files(
-    actual_dir: Path, schema_whitelist: dict[str, set[str]]
-) -> dict[str, Path]:
-    if not actual_dir.is_dir():
-        raise FileNotFoundError(f"could not find '{actual_dir}'")
+def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
+    with requests.Session() as session:
+        session.headers.update({"Authorization": f"Bearer {API_KEY}"})
+        for name, cid in COLLECTION_IDS.items():
+            url = COLLECTIONS_URL + cid
+            try:
+                for records in paginate(session, url, limit):
+                    yield name, records 
+            except requests.RequestException as e:
+                raise RuntimeError(
+                    f"Extraction failed for collection '{name}' at {url}"
+                ) from e
 
-    actual_files = {}
-    invalid_items = []
-    for item in actual_dir.iterdir():
-        if item.is_file() and item.suffix.lower() == ".csv":
-            actual_files[item.stem.lower()] = item
-        else:
-            invalid_items.append(item.name)
 
-    expected_filenames = set(schema_whitelist.keys())
-    actual_filenames = set(actual_files.keys())
-    missing = expected_filenames - actual_filenames
-    extra = actual_filenames - expected_filenames
-
-    if missing or extra or invalid_items:
-        raise ValueError(
-            f"missing files: {sorted(missing)}, "
-            f"extra files: {sorted(extra)}, "
-            f"invalid items: {sorted(invalid_items)}"
+def paginate(
+    session: requests.Session, url: str, limit: int
+) -> Iterator[list[dict]]:
+    # TODO: Manage 5 req/s limit. Either add no pacing and use the responses
+    # retry timers, or add pacing and a safety retry fallback.
+    offset = 0
+    while True:
+        resp = session.get(
+            url=url,
+            params={"offset": offset, "limit": limit},
+            timeout=30,
         )
-
-    return actual_files
-
-
-def extract_csv_files(
-    actual_files: dict[str, Path],
-) -> dict[str, pd.DataFrame]:
-    return {stem: pd.read_csv(path) for stem, path in actual_files.items()}
+        resp.raise_for_status()
+        body = resp.json()
+        records = body["records"]
+        yield records
+        if "offset" not in body or len(records) < limit:
+            return
+        offset = body["offset"]
