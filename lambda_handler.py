@@ -5,8 +5,7 @@ import json
 
 def main():
     for name, page in extract_api.extract_all():
-        print(name, json.dumps([user["Username"] for user in page], indent=1))
-
+        print(f"received {len(page)} records from {name}")
 
 if __name__ == "__main__":
     main()

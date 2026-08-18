@@ -4,6 +4,9 @@ from playwright.sync_api import sync_playwright
 
 load_dotenv()
 
+EMAIL = os.environ.get("PW_EMAIL")
+PASSWORD = os.environ.get("PW_PASSWRD")
+
 with sync_playwright() as pw:
     pw.selectors.set_test_id_attribute("data-adalo-id")
     browser = pw.chromium.launch(
@@ -11,8 +14,8 @@ with sync_playwright() as pw:
     )
     page = browser.new_page()
     page.goto("https://app.adalo.com/en/login?redirect=%2F")
-    page.get_by_placeholder("Email Address").fill(os.environ["PW_EMAIL"])
-    page.get_by_placeholder("••••••••").fill(os.environ["PW_PASSWORD"])
+    page.get_by_placeholder("Email Address").fill(EMAIL)
+    page.get_by_placeholder("••••••••").fill(PASSWORD)
     page.get_by_role("button", name="Sign In").click()
     page.locator("a.navbar-user-avatar").click()
     page.locator('[data-adalo-id="team-switcher"]').get_by_text(
