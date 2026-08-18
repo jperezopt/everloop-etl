@@ -1,15 +1,17 @@
 import requests
 
+from collections.abc import Iterator
+
 from .config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
 
 
-def extract_all():
+def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
     with requests.Session() as session:
         session.headers.update({"Authorization": f"Bearer {API_KEY}"})
         for name, cid in COLLECTION_IDS.items():
             url = COLLECTIONS_URL + cid
             try:
-                for page in paginate(session, url, 2):
+                for page in paginate(session, url, limit):
                     yield name, page
             except requests.RequestException as e:
                 raise RuntimeError(
@@ -17,7 +19,9 @@ def extract_all():
                 ) from e
 
 
-def paginate(session: requests.Session, url: str, limit=1000):
+def paginate(
+    session: requests.Session, url: str, limit: int
+) -> Iterator[list[dict]]:
     # TODO: Manage 5 req/s limit. Either add no pacing and use the responses
     # retry timers, or add pacing and a safety retry fallback.
     offset = 0
