@@ -1,6 +1,6 @@
-import requests
-
 from collections.abc import Iterator
+
+import requests
 
 from .config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
 
@@ -12,7 +12,8 @@ def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
             url = COLLECTIONS_URL + cid
             try:
                 for records in paginate(session, url, limit):
-                    yield name, records 
+                    print(f"Extracted {len(records)} records from {name}")
+                    yield name, records
             except requests.RequestException as e:
                 raise RuntimeError(
                     f"Extraction failed for collection '{name}' at {url}"
