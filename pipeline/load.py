@@ -1,6 +1,13 @@
-# Called by lambda_handler.py within the extraction generator.
-# Will be sending <= 1000 records into bigquery.
-# Records are a list of dictionaries, JSON to BQ?
+from datetime import date
 
-def load(records: list[dict]) -> None:
-    print(f"Loading {len(records)} into BigQuery...")
+
+def load_records(
+    name: str, records: list[dict], extracted_at: date, truncate: bool
+) -> None:
+    # Truncate
+    if truncate:
+        print(f"Truncated some {name} records from BigQuery")
+    else:
+        print(f"Truncated 0 {name} records from BigQuery")
+    # Append
+    print(f"Appended {len(records)} {name} records into BigQuery...")
