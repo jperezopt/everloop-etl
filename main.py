@@ -8,10 +8,10 @@ def main():
     extracted_at = datetime.now(timezone.utc).date()
     print(extracted_at)
     seen = set()
-    truncate = True
+    resync = True
     for name, records in extract.extract_all(50):
-        truncate = name not in seen
-        load.load_records(name, records, extracted_at, truncate)
+        resync = name not in seen
+        load.load_records(name, records, extracted_at, resync)
         seen.add(name)
         print(seen)
 
