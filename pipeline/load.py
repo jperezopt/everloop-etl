@@ -1,50 +1,37 @@
-from datetime import date
 import json
+from datetime import date
 
 from google.cloud import bigquery
 
+PROJECT = "everloop-analytics"
+_client = bigquery.Client(project=PROJECT)
 
-def load_records(
-    name: str, records: list[dict], extracted_at: date, resync: bool
-) -> None:
 
-    client = bigquery.Client(project="everloop-analytics")
-    table_id = f"everloop-analytics.raw.{name}"
+def load_records(name: str, records: list[dict], extracted_at: date) -> None:
+    """Load records atomically into raw.{table_name}
 
-    # Delete all the records in the current databases partition.
-    # Trivializes retries. Always happens once per database.
-    if resync:
-        query = f"""
-            DELETE FROM `{table_id}`
-            WHERE extracted_at = @extracted_at
-        """
-        
-        job_config = bigquery.QueryJobConfig(
-            query_parameters=[
-                bigquery.ScalarQueryParameter(
-                    "extracted_at",
-                    "DATE",
-                    extracted_at,
-                )
-            ]
-        )
-        client.query(query, job_config=job_config).result()
+    Grabs the table from BigQuery to determine if it's:
+    - Partitioned by extracted_at: replace todays partition, idempotent
+    - Unpartitioned: whole table is replaced
+    """
+    table_id = f"{PROJECT}.raw.{name}"
+    table = _client.get_table(table_id)
 
-        print(f"Deleted {name} records for {extracted_at}")
+    if table.time_partitioning:
+        destination = f"{table_id}${extracted_at:%Y%m%d}"
+    else:
+        destination = table_id
 
-    # Start appending adalo json to bigquery json
     rows = [
-        {
-            "raw_payload": json.dumps(record),
-            "extracted_at": extracted_at.isoformat(),
-        }
-        for record in records
+        {"raw_payload": json.dumps(r), "extracted_at": extracted_at.isoformat()}
+        for r in records
     ]
 
-    errors = client.insert_rows_json(table_id, rows)
-    if errors:
-        raise RuntimeError(
-            f"Failed APPENDING FOR {name} records: {errors}"
-        )
+    job_config = bigquery.LoadJobConfig(
+        write_disposition=bigquery.WriteDisposition.WRITE_TRUNCATE,
+        schema=table.schema,
+    )
 
-    print(f"Appended {len(records)} {name} records into BigQuery...")
+    _client.load_table_from_json(rows, destination, job_config=job_config).result()
+
+    print(f"Loaded {len(records)} {name} records into {destination}")
