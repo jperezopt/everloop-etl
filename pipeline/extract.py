@@ -2,27 +2,33 @@ from collections.abc import Iterator
 
 import requests
 
-from .config import COLLECTIONS_URL, COLLECTION_IDS, API_KEY
+from .config import API_KEY, COLLECTION_IDS, COLLECTIONS_URL
 
 
 def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
+    """Extract (name, records) for every collection in config
+
+    Each collection is fully paged before yielding
+    """
     with requests.Session() as session:
         session.headers.update({"Authorization": f"Bearer {API_KEY}"})
         for name, cid in COLLECTION_IDS.items():
             url = COLLECTIONS_URL + cid
             try:
-                for records in paginate(session, url, limit):
-                    print(f"Extracted {len(records)} records from {name}")
-                    yield name, records
+                records = [r for page in paginate(session, url, limit) for r in page]
             except requests.RequestException as e:
                 raise RuntimeError(
-                    f"Extraction failed for collection '{name}' at {url}"
+                    f"Extraction failed for collection {name} at {url}"
                 ) from e
+            print(f"Extracted {len(records)} records from {name}")
+            yield name, records
 
 
-def paginate(
-    session: requests.Session, url: str, limit: int
-) -> Iterator[list[dict]]:
+def paginate(session: requests.Session, url: str, limit: int) -> Iterator[list[dict]]:
+    """Yield one page of records at a time from a collection endpoint
+
+    'limit' is the page size, or number of records in a page.
+    """
     # TODO: Manage 5 req/s limit. Either add no pacing and use the responses
     # retry timers, or add pacing and a safety retry fallback.
     offset = 0
