@@ -2,7 +2,7 @@ WITH restocks AS (
     SELECT
         site_id,
         SUM(total_cups) AS cups_restocked
-    FROM {{ ref('cup_stock_updates') }}
+    FROM {{ ref('stg_cup_stock_updates') }}
     WHERE LOWER(action) IN ('initial stock', 'feed in', 'for staff extras')
     GROUP BY site_id
 ),
@@ -12,7 +12,7 @@ transactions AS (
         site_id,
         SUM(CASE WHEN action = 'Borrowed' THEN cup_count ELSE 0 END) AS cups_borrowed,
         SUM(CASE WHEN action = 'Returned' THEN cup_count ELSE 0 END) AS cups_returned
-    FROM {{ ref('user_history') }}
+    FROM {{ ref('stg_user_history') }}
     GROUP BY site_id
 )
 
