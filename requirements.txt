@@ -1,8 +1,4 @@
-pandas==3.0.3
-numpy==2.5.1
-supabase==2.31.0
-python-dotenv==1.2.2
-playwright==1.61.0
-
-# dev
-pytest==9.1.1
+python-dotenv
+requests
+google-cloud-bigquery
+dbt-bigquery
