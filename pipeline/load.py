@@ -1,4 +1,3 @@
-import json
 from datetime import date
 
 from google.cloud import bigquery
@@ -23,7 +22,7 @@ def load_records(name: str, records: list[dict], extracted_at: date) -> None:
         destination = table_id
 
     rows = [
-        {"raw_payload": json.dumps(r), "extracted_at": extracted_at.isoformat()}
+        {"raw_payload": r, "extracted_at": extracted_at.isoformat()}
         for r in records
     ]
 
