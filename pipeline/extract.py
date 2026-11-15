@@ -5,7 +5,7 @@ import requests
 from .config import API_KEY, COLLECTION_IDS, COLLECTIONS_URL
 
 
-def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
+def extract_all(page_size: int = 1000) -> Iterator[tuple[str, list[dict]]]:
     """Extract (name, records) for every collection in config
 
     Each collection is fully paged before yielding
@@ -15,7 +15,7 @@ def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
         for name, cid in COLLECTION_IDS.items():
             url = COLLECTIONS_URL + cid
             try:
-                records = [r for page in paginate(session, url, limit) for r in page]
+                records = [r for page in paginate(session, url, page_size) for r in page]
             except requests.RequestException as e:
                 raise RuntimeError(
                     f"Extraction failed for collection {name} at {url}"
@@ -24,10 +24,10 @@ def extract_all(limit: int = 1000) -> Iterator[tuple[str, list[dict]]]:
             yield name, records
 
 
-def paginate(session: requests.Session, url: str, limit: int) -> Iterator[list[dict]]:
+def paginate(session: requests.Session, url: str, page_size: int) -> Iterator[list[dict]]:
     """Yield one page of records at a time from a collection endpoint
 
-    'limit' is the page size, or number of records in a page.
+    page_size is the number of records in a page request
     """
     # TODO: Manage 5 req/s limit. Either add no pacing and use the responses
     # retry timers, or add pacing and a safety retry fallback.
@@ -35,13 +35,13 @@ def paginate(session: requests.Session, url: str, limit: int) -> Iterator[list[d
     while True:
         resp = session.get(
             url=url,
-            params={"offset": offset, "limit": limit},
+            params={"offset": offset, "limit": page_size},
             timeout=30,
         )
         resp.raise_for_status()
         body = resp.json()
         records = body["records"]
         yield records
-        if "offset" not in body or len(records) < limit:
+        if "offset" not in body or len(records) < page_size:
             return
         offset = body["offset"]
