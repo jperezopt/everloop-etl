@@ -22,4 +22,5 @@ COLLECTION_IDS = {
     # "containers_out": "t_ad7134d6a8084bb79841d7380d84c7e6",
     "cup_stock_updates": "t_b460390e1747492e91333eb999386bd5",
     "user_history": "t_3fa458a0fdd54cb5b8d8dda20209ee3b",
+    "sites": "t_4f1def22438341f291b1d2c5ac568bff"
 }

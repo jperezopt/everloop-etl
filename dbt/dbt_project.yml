@@ -1,0 +1,14 @@
+name: everloop
+version: "1.0"
+config-version: 2
+profile: everloop
+model-paths: ["models"]
+
+models:
+  everloop:
+    staging:
+      +schema: staging
+      +materialized: view
+    marts:
+      +schema: marts
+      +materialized: view
