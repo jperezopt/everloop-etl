@@ -6,5 +6,5 @@ SELECT
 FROM {{ref('stg_user_history')}} AS uh
 LEFT JOIN {{ref('stg_sites')}} AS s
     ON uh.site_id = s.site_id
-WHERE action = "Borrowed"
+WHERE uh.action = 'Borrowed'
 GROUP BY borrow_month, uh.site_id, s.site_name
