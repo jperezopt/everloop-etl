@@ -6,14 +6,13 @@ PROJECT = "everloop-analytics"
 _client = bigquery.Client(project=PROJECT)
 
 
-def load_records(name: str, records: list[dict], extracted_at: date) -> None:
+def load_records(table_name: str, records: list[dict], extracted_at: date) -> None:
     """Load records atomically into raw.{table_name}
 
-    Grabs the table from BigQuery to determine if it's:
-    - Partitioned by extracted_at: replace todays partition, idempotent
-    - Unpartitioned: whole table is replaced
+    replace extraction date's partition for partitioned tables,
+    or replace entire table for unpartitioned tables
     """
-    table_id = f"{PROJECT}.raw.{name}"
+    table_id = f"{PROJECT}.raw.{table_name}"
     table = _client.get_table(table_id)
 
     if table.time_partitioning:
@@ -33,4 +32,4 @@ def load_records(name: str, records: list[dict], extracted_at: date) -> None:
 
     _client.load_table_from_json(rows, destination, job_config=job_config).result()
 
-    print(f"Loaded {len(records)} {name} records into {destination}")
+    print(f"Loaded {len(records)} {table_name} records into {destination}")
