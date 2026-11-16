@@ -1,10 +1,14 @@
-csv_database_collections/
+# Python
 __pycache__/
+*.pyc
 .venv/
-misc/
+
+# Environment
 .env
-dbt/profiles.yml
-dbt/logs/
+
+# dbt
 dbt/.user.yml
-dbt/target/
 dbt/dbt_packages/
+dbt/logs/
+dbt/profiles.yml
+dbt/target/
